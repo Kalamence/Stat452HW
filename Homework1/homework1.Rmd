@@ -1,0 +1,124 @@
+---
+title: "Homework 1"
+author: "Matthew Reyers, Dani Chu and Ryan Sheehan"
+date: '2017-09-20'
+output:
+  pdf_document: default
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+#install.packages("pacman")
+pacman::p_load(knitr, tidyverse, ISLR, GGally)
+data(Auto)
+```
+
+## Question 1 (Chapter 2, #1, 8 marks)
+
+
+(a) With a large number of data points there is less variance to account for between data sets. Because of the limited model variance we can focus instead on reducing the bias associated with each method. As flexible methods tend to produce less biased results, we would expect a flexible method to be more desirable in this circumstance.
+
+(b) Having a small number of observations and a large number of predictors can often be problematic for highly flexible methods. Few observations indicate a great deal of variance in these methods when data sets are changed. For this reason it would make more sense to pursue a method that performs well in high model variance situations. This leads to the conclusion that a non-flexible method would be preferred.
+
+(c) When the relationship between predictors and response is highly non-linear we expect a flexible model to outperform a non-flexible model. Reasoning for this is non-flexible models, such as regression or low order smoothing splines, tend to predict better when the underlying relationship is linear. In comparison, a high order smoothing spline (which is very flexible) can be shown to perfectly fit the data in certain conditions. Though this is not preferred for eventual testing, it provides some more intuition that a flexible model can be of more use in this scenario.
+
+(d) When the variance of the error terms is extremely large, it is important to take an approach that is less flexible. If a flexible approach is instead used the model could end up fitting the errors instead of just fitting the data.
+
+
+## Question 2 (Chapter 2, #2, 6 marks)
+
+(a) This would be a regression problem as CEO Salary is a continuous value. As we are concerned with understanding the current factors impacting current salary, a reasonable conclusion is that this is a concern of inference. There are 500 observations and 3 predictors.
+
+(b) Here we are looking at an event that is yet to happen and are therefore looking to predict its result. As we can classify this result into either being a success or a failure, we recognize that this is a classification problem. There are 20 observations and 13 predictors. 
+
+(c) As with many market considerations, there is no money in the past and so we look to predicting the future. This problem will naturally take the form of a regression as we are looking to measure how much we can gain rather than if we will. The analysis will be conducted on 52 observations (number of weeks in 2012) and with 3 predictors.
+
+## Question 3 (Chapter 2, #9, 8 marks)
+
+```{r, include=FALSE}
+head(Auto)
+```
+
+(a) Qualitative: Origin, name
+    Quantitative: Cylinders, displacement, horsepower, weight, year, acceleration, mpg
+
+(b) Note we made us of the inline R code functionality in R markdown to output these results.
+  
+    The range of displacement is: `r range(Auto$displacement)`
+
+    The range of cylinders is: `r range(Auto$cylinders)`
+    
+    The range of horsepower is: `r range(Auto$horsepower)`
+    
+    The range of weight is: `r range(Auto$weight)`
+    
+    The range of year is: `r range(Auto$year)`
+    
+    The range of acceleration is: `r range(Auto$acceleration)`
+    
+    The range of mpg is: `r range(Auto$mpg)`
+
+
+(c)
+
+```{r}
+# Function takes column as input and outputs mean and SD for the variable
+meansd <- function(x) {
+  out <- c(mean(x), sd(x))
+  names(out) <- c("mean", "SD")
+  out
+}
+
+mean_sd <- apply(Auto[, c("cylinders", 
+                          "displacement", 
+                          "horsepower", 
+                          "weight", 
+                          "acceleration", 
+                          "year", 
+                          "mpg")], 
+                  MARGIN = 2, FUN = meansd) 
+kable(mean_sd)
+```
+
+
+(d)
+
+```{r}
+# Subset Data
+AutoSubset <- Auto[c(1:9,86:nrow(Auto)),]
+
+# Function that takes column as input and outputs the mean, sd, lower bound of range,
+# and upper bound of range
+meansdr = function(x) {
+  out = c(mean(x), sd(x), range(x))
+  names(out) = c("mean", "sd", "range lower", "range upper")
+  out
+}
+
+subset <- apply(Auto[, c("cylinders", 
+                         "displacement", 
+                         "horsepower", 
+                         "weight", 
+                         "acceleration", 
+                         "year")], 
+                MARGIN = 2, FUN = meansdr)
+kable(subset)
+```
+
+(e)
+```{r, message = FALSE}
+# Use ggpairs from the GGally package
+Auto %>% 
+  select(-name) %>%
+  mutate(cylinders = cylinders %>% as.factor(),
+         year = year %>% as.factor(),
+         origin = origin %>% as.factor()) %>%
+  ggpairs()
+  
+```
+Note the plot is better viewed outside of the pdf using the zoom function in RStudio.
+
+Some variables, such as horsepower and weight, are highly correlated. Instances in which we have highly correlated variables are generally preferable to avoid. The only time we want correlation is between a regressor and a dependent variable.
+
+(f)
+There appears to be a relationship between mpg and the following: displacement, horsepower, and weight. These relationships could be argued to be linear but may be better explained using a more flexible model. If this is unavailable then a transformation of the data may lead to more efficient modelling. Additionally, both cylinders and origin are categorical variables that seem to be related to mpg.
