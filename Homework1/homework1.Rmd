@@ -77,7 +77,7 @@ mean_sd <- apply(Auto[, c("cylinders",
                           "year", 
                           "mpg")], 
                   MARGIN = 2, FUN = meansd) 
-kable(mean_sd)
+mean_sd %>% round(., 2) %>% kable()
 ```
 
 
@@ -102,7 +102,7 @@ subset <- apply(Auto[, c("cylinders",
                          "acceleration", 
                          "year")], 
                 MARGIN = 2, FUN = meansdr)
-kable(subset)
+subset %>% round(. ,2) %>% kable()
 ```
 
 (e)
