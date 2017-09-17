@@ -106,14 +106,15 @@ kable(subset)
 ```
 
 (e)
-```{r, message = FALSE}
+```{r, message = FALSE, fig.width = 20, fig.height = 20, fig.align = "center"}
 # Use ggpairs from the GGally package
 Auto %>% 
   select(-name) %>%
   mutate(cylinders = cylinders %>% as.factor(),
          year = year %>% as.factor(),
          origin = origin %>% as.factor()) %>%
-  ggpairs()
+  ggpairs(., upper= list(continuous = wrap("cor", size = 18))) +
+  theme(text = element_text(size = 26))
   
 ```
 Note the plot is better viewed outside of the pdf using the zoom function in RStudio.
@@ -122,3 +123,62 @@ Some variables, such as horsepower and weight, are highly correlated. Instances 
 
 (f)
 There appears to be a relationship between mpg and the following: displacement, horsepower, and weight. These relationships could be argued to be linear but may be better explained using a more flexible model. If this is unavailable then a transformation of the data may lead to more efficient modelling. Additionally, both cylinders and origin are categorical variables that seem to be related to mpg.
+
+
+Below are graphs that depict the relationships of mpg with all the variables. The first graph is for all the continuous variables and their relationship with mpg. They are fit with a linear model. 
+```{r, message = FALSE, fig.width = 20, fig.height = 20, fig.align = "center"}
+# Plot variables with mpg
+Auto %>%
+  select(-name, -cylinders, -origin, -year) %>%
+  gather(-mpg, key = "var", value = "value") %>%
+  ggplot(aes(x = value, y = mpg)) +
+    geom_point() +
+    stat_smooth(method = "lm") +
+    facet_wrap(~ var, scales = "free") +
+    theme_bw()+
+  theme(text = element_text(size = 36))
+```
+
+The next graphs are for the categorical variables. Beginning with cylinders and mpg.
+
+```{r, message = FALSE, fig.width = 20, fig.height = 20, fig.align = "center"}
+
+Auto %>%
+  select(mpg, cylinders) %>%
+  gather(-mpg, key = "var", value = "value") %>%
+  ggplot(aes(x = mpg)) +
+    geom_histogram() +
+    facet_wrap(ncol=1, ~ var +value) +
+    theme_bw()+
+  theme(text = element_text(size = 36))
+```
+
+This next graph is origin and mpg.
+
+```{r, message = FALSE, fig.width = 20, fig.height = 20, fig.align = "center"}
+
+Auto %>%
+  select(mpg, origin) %>%
+  gather(-mpg, key = "var", value = "value") %>%
+  ggplot(aes(x = mpg)) +
+    geom_histogram() +
+    facet_wrap(ncol=1, ~ var + value) +
+    theme_bw()+
+  theme(text = element_text(size = 36))
+```
+
+This final graph is year and mpg.
+
+```{r, message = FALSE, fig.width = 20, fig.height = 40, fig.align = "center"}
+
+Auto %>%
+  select(mpg, year) %>%
+  gather(-mpg, key = "var", value = "value") %>%
+  ggplot(aes(x = mpg)) +
+    geom_histogram() +
+    facet_wrap(ncol=1, ~ value) +
+    theme_bw()+
+  theme(text = element_text(size = 36))
+
+  
+```
