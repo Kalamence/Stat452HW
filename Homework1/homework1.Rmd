@@ -4,6 +4,7 @@ author: "Matthew Reyers, Dani Chu and Ryan Sheehan"
 date: '2017-09-20'
 output:
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup}
