@@ -1,0 +1,199 @@
+---
+title: "Homework 2"
+author: "Matthew Reyers, Dani Chu and Ryan Sheehan"
+date: '2017-09-25'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1 (Chapter 3, #3, 6 marks)
+
+
+(a) Female = 50+ 20GPA +0.07IQ + 35(Gender = Female) + 0.01(GPA)IQ - 10(GPA)(Gender = Female) = 85 + 20GPA + 0.07IQ + 0.01(GPA)IQ - 10GPA
+Male = 50 + 20GPA + 0.07IQ + 0.01(GPA)IQ 
+Female - Male | Fixed IQ and GPA = 35 -10GPA
+Female grads make more money than male grads up until GPA hits 3.5. This means that the comment - iii) For a fixed value of IQ and GPA, males earn more on average than emales provided that the GPA is high enough - is correct at explaining the scenario
+
+(b) Female Salary | IQ = 110, GPA = 4 = 85 + 20(4) + 0.07(110) + 0.01(4)(110) - 10(4) = 137.1
+
+(c) False. A small value as a coefficient could be indicative of a variable with a large range being used. Coefficients should not be taken at face value to describe whether or not there is an effect. A comparison must be made with the standard error of the estimate to truly understand what the evidence supports.
+
+
+
+## Question 2 (Chapter 3, #9, 10 marks)
+
+```{r}
+library(ISLR) 
+data(Auto)
+library(dplyr)
+library(GGally)
+Auto <- 
+  Auto %>% select(-name) %>% mutate(origin = factor(origin))
+head(Auto)
+```
+
+
+(a) 
+```{r}
+# Scatterplot matrix
+ggpairs(Auto)
+```
+
+(b)  
+```{r}
+# Name is already excluded by the piping done by first function
+cor(Auto)
+```
+
+(c) 
+```{r}
+myModel = lm(data = Auto, mpg ~ .)
+summary(myModel)
+```
+i) There is some relationship between the response and the predictors. This is noticeable in the fact that many of the predictors have a p value smaller than 0.05, meaning that evidence indicates that coefficient is not zero.
+
+ii) The predictors with a significant relationship to the response are displacement, weight, year, and origin (though part of this effect is hidden in the intercept).
+
+iii) The coefficient for year (0.777) indicates that when all else is held equal, a 1 unit increase in year leads to a 0.777 unit increase in mpg.
+
+(d) 
+```{r}
+myModelResid = summary(myModel)$residuals
+myModelFit   = fitted.values(myModel)
+plot(myModelFit, myModelResid)
+library(car)
+outlierTest(myModel)
+leveragePlots(myModel)
+leverage = hat(model.matrix(myModel))
+plot(leverage)
+bigLevObservation = Auto[leverage > 0.1, ]
+bigLevObservation
+```
+Looking at the fit, it is noticable that the larger fitted values have larger residuals and that this causes a slight cone shape to the residual plot. This entails a non-equal standard deviation across the results.
+As for outliers a few values have residuals upwards of 10 and some near -10. These observations definitely generate some cause for concern and should be further investigated to determine the appropriate course of action. Using the basic outlierTest from the car package confirms that there observation 321 is a potential outlier.
+For leverage there is one observation that has a leverage of slightly more than 0.2. Compared to the rest of the leverage measures this is abnormally large. Values like this should be dealt with carefully.
+
+
+(e)
+```{r}
+intModel = lm(mpg ~ .*., data = Auto)
+summary(intModel)
+```
+The interactions between acceleration and year, acceleration and origin, as well as year and origin all seem to be useful effects to keep in mind. Cylinders and acceleration also shows promise for predicting as it also has a p value < 0.05.
+
+(f) The work below shows some of these functions considered with respect to the variable weight. What can be found in the results is a show of effect in the log and square root effects. This could perhaps be due to a trend in the data being adjusted into a better fit for linear regression as the log transformation and the square root transformation behave similarly. 
+```{r}
+rootModel = lm(mpg ~ . + I(log(weight))+I((weight)^.5)+I((weight)^2), data = Auto)
+summary(rootModel)
+```
+
+## Question 3 (Chapter 4, #4, 7 marks)
+
+
+
+(a) On average we should be using 10% of the observations due to the uniform nature on the distribution of X
+
+(b) On average we should be using 1% of the total observations as both X1 and X2 are uniformly distributed and we are looking at 10% ranges for each.
+
+(c) On average we should be using a proportion of (.10)^100 observations due to the uniform nature of all of the variables.  
+
+(d) Relative to the number of factors, the quantity of observations to be used quickly diminishes when using fixed ranges for neighbour determination. This is because the domain on which an observation is deemed to be an elligible neighbour is being further contracted with each additional constraint (feature). A solution, or at least improvement, to this is to take the K nearest observations rather than all the observations on a specified domain.
+
+(e) For p = 1, a side has length 0.1
+    For p = 2, a side has length (0.1)^1/2
+    For p = 100, a side has length (0.1)^1/100
+This answer may seem unintuitive based on previous results. It is sensical though due to the fact that we want to use 10% of the data to train and this data exists in the area or volume enclosed by the hypercube. This would be a measure calculated as a product of all dimension's measurements and therefore would require the aforementioned side lengths.
+    
+## Question 4 (Chapter 4, #10, 9 marks)
+```{r}
+library(ISLR)
+data(Weekly)
+head(Weekly)
+names(Weekly)
+```
+
+
+(a) The first noticeable pattern is the increase in volume as the years go by. The only time this trend subsides is shortly after the market crash of 2008. We should also note that there should be some collinearity in the lags as stocks go on runs or losses and this information would likely be captured by these variables. 
+```{r}
+plot(Weekly$Year, Weekly$Volume)
+pairs(Weekly)
+```
+
+(b) The model suggests that only Lag2 is statistically significant in this prediction.
+```{r}
+str(Weekly)
+names(Weekly)
+logReg = glm(data = Weekly, Direction ~ . - Year - Today, family = binomial(link = "logit"))
+summary(logReg)
+names(logReg)
+Guess = ifelse(predict(logReg, Weekly, type = "response") > 0.5, "Up", "Down")
+str(Weekly$Direction)
+confusion = xtabs(~as.factor(Guess) + Weekly$Direction)
+confusion
+correctPerc = sum(diag(confusion))/sum(confusion) * 100
+correctPerc
+```
+
+(c) By the above work, the model correctly predicts 56% of the data that it was originally fit against. The confusion matrix shows that observations that are correctly classified vs. those incorrectly classified by class are roughly equal. In example, 54 Down observations are correctly identified as such though 48 Down observations are classified incorrectly as Up. 
+
+(d) 
+```{r}
+train = Weekly[Weekly$Year <= 2008, c("Direction", "Lag2")]
+test = Weekly[Weekly$Year > 2008, c("Direction", "Lag2")]
+testClasses = test$Direction
+trainMod = glm(data = train, Direction ~ Lag2, family = binomial(link = "logit"))
+guessFit = ifelse(predict(trainMod, test, type = "response") > 0.5, "Up", "Down")
+confusionTest = xtabs(~as.factor(guessFit) + testClasses)
+confusionTest
+accuracyGLM = sum(diag(confusionTest)) / sum(confusionTest) * 100
+```
+
+(e)
+```{r}
+library(MASS)
+lda.fit = lda(Direction ~ Lag2, data = train)
+lda.fit
+lda.pred = predict(lda.fit, test)
+confusionLDA = xtabs(~testClasses + lda.pred$class)
+confusionLDA
+accuracyLDA = sum(diag(confusionLDA)) / sum(confusionLDA) * 100
+```
+
+(f)
+```{r}
+qda.fit = qda(Direction ~ Lag2, data = train)
+qda.fit
+qda.class = predict(qda.fit, test)$class
+confusionQDA = xtabs(~ testClasses + qda.class)
+confusionQDA
+accuracyQDA = sum(diag(confusionQDA)) / sum(confusionQDA) * 100
+```
+
+(g)
+```{r}
+set.seed(1234)
+# Literally just needed them as matrices/vectors, not data frames
+knn.pred = knn(cbind(train$Lag2), cbind(test$Lag2), train$Direction, k = 1)
+confusionKNN = xtabs(~ testClasses + knn.pred)
+confusionKNN
+accuracyKNN = sum(diag(confusionKNN)) / sum(confusionKNN) * 100
+```
+
+(h) According to the following results, the GLM and LDA approaches are most accurate for this data when only considering Lag2 as a predictor.
+```{r}
+# Confusion measures
+accuracyGLM
+accuracyLDA
+accuracyQDA
+accuracyKNN
+```
+
+(i) DO NOT HAND IN
+
+
+
