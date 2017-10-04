@@ -23,7 +23,7 @@ $$
       $$\mbox{Male} = 50 + 20\mbox{GPA} + 0.07\mbox{IQ} + 0.01(\mbox{GPA})\mbox{IQ} $$
 $$ \mbox{(Female - Male | Fixed IQ and GPA)} = 35 -10\mbox{GPA}$$
 
-Female grads make more money than male grads up until GPA hits 3.5. This means that the comment - iii) For a fixed value of IQ and GPA, males earn more on average than emales provided that the GPA is high enough - is correct at explaining the scenario
+Female grads make more money than male grads up until GPA hits 3.5. This means that the comment - iii) For a fixed value of IQ and GPA, males earn more on average than emales provided that the GPA is high enough - is correct at explaining the scenario.
 
 (b) $$
 \begin{aligned}
@@ -86,6 +86,7 @@ iii) The coefficient for year (0.777) indicates that when all else is held equal
 ```{r}
 myModelResid = summary(myModel)$residuals
 myModelFit   = fitted.values(myModel)
+plot(myModel)
 plot(myModelFit, myModelResid)
 outlierTest(myModel)
 leveragePlots(myModel)
