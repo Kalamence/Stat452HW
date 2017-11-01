@@ -1,14 +1,22 @@
 ---
 title: "Homework 3"
-author: "name1 and name2 and name3"
-date: '2017-10-25'
-output: html_document
-editor_options: 
+author: "Matthew, Ryan, Dani"
+date: '2017-11-01'
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(leaps)
+library(dplyr)
+library(tidyverse)
+library(glmnet)
+library(ISLR)
+library(pls)
 ```
 
 
@@ -27,6 +35,10 @@ error = rnorm(n)
 
 (b) (1 mark)
 
+We selected Beta values by the following rule:
+
+$$\beta_i = i+1$$
+
 ```{r}
 Y = 1 + 2*X + 3*X^2 +4*X^3 + error
 ```
@@ -44,9 +56,6 @@ response vector, just like `lm.fit()` and
 the following hint may be of use:
 
 ```{r}
-library(leaps)
-library(dplyr)
-library(tidyverse)
 pmax <- 10
 Xmat <- matrix(NA,nrow=n,ncol=pmax)
 for(i in 1:pmax) {
@@ -64,26 +73,32 @@ models.sum = summary(models)
 
 cp.best = which.min(models.sum$cp)
 bic.best = which.min(models.sum$bic)
-rsq.best = which.max(models.sum$rsq)
+rsq.best = which.max(models.sum$adjr2)
 
 print(paste("Best model for Cp is model with", cp.best, "variables"))
 print(paste("Best model for BIC is model with", bic.best, "variables"))
-print(paste("Best model for R^2 is model with", rsq.best, "variables"))
+
+print(paste("Best model for Adjusted R^2 is model with", rsq.best, "variables"))
 
 plot(models.sum$cp, xlab = "Number of Variables", ylab = "Cp", main = "Cp by # of Variables", type="l") 
 
 plot(models.sum$bic, xlab = "Number of Variables", ylab = "BIC", main = "BIC by # of Variables", type="l") 
 
-plot(models.sum$rsq, xlab = "Number of Variables", ylab = "R^2", main = "R^2 by # of Variables", type="l") 
+plot(models.sum$adjr2, xlab = "Number of Variables", ylab = "Adjusted R^2", main = "Adjusted R^2 by # of Variables", type="l") 
 
-print("Best model for Cp has coeffiecients")
-coef(models, cp.best)
+if(cp.best == bic.best & bic.best == rsq.best){
+  print("Best model for all variables has coeffiecients")
+  coef(models, cp.best)
+} else{
+  print("Best model for Cp has coeffiecients")
+  coef(models, cp.best)
 
-print("Best model for BIC  has coeffiecients")
-coef(models, bic.best)
+  print("Best model for BIC  has coeffiecients")
+  coef(models, bic.best)
 
-print("Best model for R^2  has coeffiecients")
-coef(models, rsq.best)
+  print("Best model for Adjusted R^2  has coeffiecients")
+  coef(models, rsq.best)
+}
 ```
 
 
@@ -96,26 +111,31 @@ models.sum = summary(models)
 
 cp.best = which.min(models.sum$cp)
 bic.best = which.min(models.sum$bic)
-rsq.best = which.max(models.sum$rsq)
+rsq.best = which.max(models.sum$adjr2)
 
 print(paste("Best model for Cp is model with", cp.best, "variables"))
 print(paste("Best model for BIC is model with", bic.best, "variables"))
-print(paste("Best model for R^2 is model with", rsq.best, "variables"))
+print(paste("Best model for Adjusted R^2 is model with", rsq.best, "variables"))
 
 plot(models.sum$cp, xlab = "Number of Variables", ylab = "Cp", main = "Cp by # of Variables", type="l") 
 
 plot(models.sum$bic, xlab = "Number of Variables", ylab = "BIC", main = "BIC by # of Variables", type="l") 
 
-plot(models.sum$rsq, xlab = "Number of Variables", ylab = "R^2", main = "R^2 by # of Variables", type="l") 
+plot(models.sum$adjr2, xlab = "Number of Variables", ylab = "R^2", main = "Adjusted R^2 by # of Variables", type="l") 
 
-print("Best model for Cp has coeffiecients")
-coef(models, cp.best)
+if(cp.best == bic.best & bic.best == rsq.best){
+  print("Best model for all variables has coeffiecients")
+  coef(models, cp.best)
+} else{
+  print("Best model for Cp has coeffiecients")
+  coef(models, cp.best)
 
-print("Best model for BIC  has coeffiecients")
-coef(models, bic.best)
+  print("Best model for BIC  has coeffiecients")
+  coef(models, bic.best)
 
-print("Best model for R^2  has coeffiecients")
-coef(models, rsq.best)
+  print("Best model for Adjusted R^2  has coeffiecients")
+  coef(models, rsq.best)
+}
 ```
 
 
@@ -126,36 +146,40 @@ models.sum = summary(models)
 
 cp.best = which.min(models.sum$cp)
 bic.best = which.min(models.sum$bic)
-rsq.best = which.max(models.sum$rsq)
+rsq.best = which.max(models.sum$adjr2)
 
 print(paste("Best model for Cp is model with", cp.best, "variables"))
 print(paste("Best model for BIC is model with", bic.best, "variables"))
-print(paste("Best model for R^2 is model with", rsq.best, "variables"))
+print(paste("Best model for Adjusted R^2 is model with", rsq.best, "variables"))
 
 plot(models.sum$cp, xlab = "Number of Variables", ylab = "Cp", main = "Cp by # of Variables", type="l") 
 
 plot(models.sum$bic, xlab = "Number of Variables", ylab = "BIC", main = "BIC by # of Variables", type="l") 
 
-plot(models.sum$rsq, xlab = "Number of Variables", ylab = "R^2", main = "R^2 by # of Variables", type="l") 
+plot(models.sum$adjr2, xlab = "Number of Variables", ylab = "Adjusted R^2", main = "Adjusted R^2 by # of Variables", type="l") 
 
-print("Best model for Cp has coeffiecients")
-coef(models, cp.best)
+if(cp.best == bic.best & bic.best == rsq.best){
+  print("Best model for all variables has coeffiecients")
+  coef(models, cp.best)
+} else{
+  print("Best model for Cp has coeffiecients")
+  coef(models, cp.best)
 
-print("Best model for BIC  has coeffiecients")
-coef(models, bic.best)
+  print("Best model for BIC  has coeffiecients")
+  coef(models, bic.best)
 
-print("Best model for R^2  has coeffiecients")
-coef(models, rsq.best)
+  print("Best model for Adjusted R^2  has coeffiecients")
+  coef(models, rsq.best)
+}
 ```
 
 # Compare to results in 8c
 
-The results are excatly the same for all 3 selection criteria.
+The results are excatly the same for all 3 selection criteria. The same model was selected by all criteria in all directions.
 
 (e) (3 marks)
 
 ```{r}
-library(glmnet)
 lambdas <- 10^{seq(from=-2,to=5,length=100)}
 cv.lafit <- cv.glmnet(Xmat,Y,alpha=1,lambda=lambdas) 
 plot(cv.lafit)
@@ -167,7 +191,7 @@ coef(la.best)
 
 # Discuss results obtained from CV and lasso model
 
-The results are almost identical to the models selected by BIC and Cp. The coefficients of the predictors in the lasso model have seen a very slight shrinkage the intercept has seen a small increase
+The results are almost identical to the model selected above. The coefficients of the predictors in the lasso model have seen a very slight shrinkage the intercept has seen a small increase.
 
 ## Question 2 (Ch6, #9, 12 marks)
 
@@ -176,7 +200,6 @@ To make everyone's results comparable, please
 select your test set with the following.
 
 ```{r}
-library(ISLR)
 data(College)
 # Standardize columns
 College <- mutate(College,Private = as.numeric(Private=="Yes"))
@@ -194,7 +217,8 @@ College.train <- College[-testset,]
 linear = lm(Apps ~ . , data = College.train)
 
 preds = predict(linear, College.test)
-mean((College.test$Apps - preds)^2) 
+e1 = mean((College.test$Apps - preds)^2) 
+e1
 ```
 
 (c) (2 marks)
@@ -203,14 +227,15 @@ mean((College.test$Apps - preds)^2)
 lambdas <- 10^{seq(from=-2,to=5,length=100)}
 X = College.train %>% select(-Apps) %>% data.matrix()
 y = College.train$Apps
-cv.lafit <- cv.glmnet(X, y, alpha=0,lambda=lambdas) 
+cv.lafit <- cv.glmnet(X, y, alpha=0, lambda=lambdas) 
 plot(cv.lafit)
 la.best.lam <- cv.lafit$lambda.1se
 la.best <- glmnet(X, y, alpha=0, lambda = la.best.lam)
 
 x.pred = College.test %>% select(-Apps) %>% data.matrix()
 preds = predict(la.best, x.pred)
-mean((College.test$Apps - preds)^2)
+e2 = mean((College.test$Apps - preds)^2)
+e2
 ```
 
 (d) (2 marks)
@@ -227,37 +252,40 @@ la.best <- glmnet(X, y, alpha = 1, lambda = la.best.lam)
 
 x.pred = College.test %>% select(-Apps) %>% data.matrix()
 preds = predict(la.best, x.pred)
-mean((College.test$Apps - preds)^2)
+e3 = mean((College.test$Apps - preds)^2)
 
 print(paste("number of coefs larger than 0:", sum(coef(la.best) > 0)))
+e3
 ```
 
 (e) (2 marks)
 
 ```{r}
-library(pls)
-pcr.fit = pcr(Apps ∼ ., data = College.train, validation="CV")
+# data already scaled above
+pcr.fit = pcr(Apps ∼ ., data = College.train, validation = "CV")
+
 # Choose M by the graph 
 validationplot(pcr.fit, val.type = "MSEP")
 
-print("We choose a value of 5 for M")
+print("We choose a value of 5 for M is a simple model that has a very good % variance explained")
 
 preds = predict(pcr.fit, College.test, ncomp = 5) 
-mean((preds - College.test$Apps)^2) 
+e4 = mean((preds - College.test$Apps)^2) 
+e4
 ```
 
 (f) (2 marks)
 
 ```{r}
-pls.fit = plsr(Apps ∼ ., data = College.train, validation="CV")
+pls.fit = plsr(Apps ∼ ., data = College.train, validation = "CV")
 # Choose M by the graph and summary
 validationplot(pls.fit, val.type = "MSEP")
 summary(pls.fit)
-print("We choose a value of 2 for M")
+print("We choose a value of 2 for M as it is the simplest model that has a acceptable error rate")
 
 preds = predict(pls.fit, College.test, ncomp = 2) 
-mean((preds - College.test$Apps)^2) 
-
+e5 = mean((preds - College.test$Apps)^2) 
+e5
 ```
 
 (g) (2 marks)
@@ -266,6 +294,17 @@ How accurately can we predict the number of college applications received?
 
 Is there much diﬀerence among the test errors resulting from these ﬁve approaches?
 
+```{r}
+e1 #lm
+e3 # lasso
+e2 # ridge
+e5 # pls
+e4 # pcr
+```
+
+We can predict the number of college applications very closely. The MSE is very small compared to the magnitude of the response variable. Our in sample Adjusted R-squared is 0.92.
+
+The linear model has the smallest MSE for the testing data. It is significantly smaller than that of pcr. There is a spread in MSE across the 5 methods. This indicates that there is a distinct ranking between the 5 methods. 
 
 ## Question 3 (Ch7, #6, 8 marks)
 
@@ -273,12 +312,23 @@ Is there much diﬀerence among the test errors resulting from these ﬁve appro
 
 ```{r}
 attach(Wage)
+set.seed(444)
+
+# Make sure train set has full range of age values
+Wage <- Wage %>% arrange(age)
+Wage.train = Wage[c(1,nrow(Wage)), ]
+Wage2 <- Wage[-c(1, nrow(Wage)), ]
+
+# make test set and train set
+testset <- sample(1:2998, size = 300)
+Wage.test <- Wage2[testset,]
+Wage.train <- rbind(Wage2[-testset,], Wage.train)
 
 errors = rep(NA, 8)
 for(i in 1:8){
-  fit = lm(wage ∼ poly(age, i), data = Wage) 
-  preds = predict(fit, Wage)
-  errors[i] = mean((Wage$wage - preds)^2) 
+  fit = lm(wage ∼ poly(age, i), data = Wage.test) 
+  preds = predict(fit, Wage.train)
+  errors[i] = mean((Wage.train$wage - preds)^2) 
 }
 
 d = which.min(errors)
@@ -294,21 +344,53 @@ fit.7=lm(wage∼poly(age, 7), data=Wage)
 fit.8=lm(wage∼poly(age, 8), data=Wage) 
 anova(fit.1, fit.2, fit.3, fit.4, fit.5, fit.6, fit.7, fit.8) 
 
-dat = data.frame(Wage$age, fitted(fit.8))
+dat = data.frame(Wage$age, fitted(fit.2))
 
 
 ggplot() +
-  geom_point(data = Wage, aes(x = Wage$age, y = Wage$wage)) +
-  geom_line(data = dat, aes(x = Wage.age, y = fitted.fit.8.)) 
+  geom_point(data = Wage, aes(x = age, y = wage)) +
+  geom_line(data = dat, aes(x = Wage.age, y = fitted.fit.2.)) 
 
 ```
+
+The degree chose was a polynomial of degree 2. This is confirmed by our anova analysis.
 
 (b) (3 marks)
 
 
 ```{r}
+errors = rep(NA, 10)
+for(i in 1:10){
+  j = i*5
+  agebreaks <- seq(17, 80+j, by = j)
+  fit = lm(wage ∼ cut(age, breaks = agebreaks), data = Wage.train) 
+  preds <-  predict(fit, Wage.test)
+  errors[i] <-  mean((Wage.test$wage - preds)^2) 
+}
+
+
+df.errors = data.frame(seq(5,50, by = 5), errors)
+colnames(df.errors) = c("group.size","error")
+
+ggplot(df.errors, aes(x = group.size, y =error))+
+  geom_point()+
+  geom_line()
+
+
+j = which.min(errors)*5
+
+# age groups should be of size 10
+j
+
+agebreaks <- seq(17, 80+j, by = j)
+fit = lm(wage ∼ cut(age, breaks = agebreaks), data = Wage) 
+uniqueAge <- data.frame(age = sort(unique(Wage$age)))
+preds <- data.frame(uniqueAge,predict(fit,newdata = uniqueAge,interval="confidence")) 
+
+ggplot(Wage,aes(x=age,y=wage)) + 
+  geom_point(alpha=0.1) + 
+  geom_ribbon(aes(x=age,y=fit,ymin=lwr,ymax=upr), data=preds, fill="blue", alpha=.2) + 
+  geom_line(aes(y = fit), data = preds, color="blue")
 
 ```
-
-(b) Fit a step function to predict wage using age, and perform crossvalidation to choose the optimal number of cuts. Make a plot of the ﬁt obtained.
 
