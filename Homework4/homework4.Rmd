@@ -44,7 +44,9 @@ model.boost <- gbm(I(Purchase == "Yes") ~ ., data = train.set,
                    n.trees = 1000, 
                    distribution = "bernoulli", 
                    shrinkage = 0.01)
-summary(model.boost)
+
+# The top 10 most important predictors
+summary(model.boost) %>% head(10)
 ```
 
 (c) (5 marks)
@@ -52,11 +54,27 @@ summary(model.boost)
 Use the boosting model to predict the response on the test data. Predict that a person will make a purchase if the estimated probability of purchase is greater than 20%. Form a confusion matrix. What fraction of the people predicted to make a purchase do in fact make one? How does this compare with the results obtained from applying KNN or logistic regression to this data set?
 
 ```{r}
-preds.boost <- predict(model.boost, newdata = test.set, n.trees=1000, type="response") 
-
+# Predict on test data
+preds.boost <- predict(model.boost, newdata = test.set, n.trees=1000, type = "response") 
+# Purchase if over 20%
 preds.boost <- (preds.boost > 0.2) 
+# Confusion Matrix
+conf.mat.boost <- table(preds.boost, test.set$Purchase)
+conf.mat.boost
 
-table(preds.boost, train.set$Purchase)
+# Fraction of people predicted to purchase who made one
+conf.mat.boost[2,2]/sum(conf.mat.boost[2,])
+
+
+# Logistic Regression
+model.log <- glm(I(Purchase == "Yes") ~ ., data = train.set, family = binomial())
+preds.log <- predict(model.log, newdata = test.set, type = "response")
+preds.log <- (preds.log > 0.2)
+conf.mat.log <- table(preds.log, test.set$Purchase)
+conf.mat.log
+
+# Fraction of people predicted to purchase who made one
+conf.mat.log[2,2]/sum(conf.mat.log[2,])
 
 ```
 
