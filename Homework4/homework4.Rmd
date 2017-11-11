@@ -9,7 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(tidyverse, ISLR, gbm)
+pacman::p_load(tidyverse, ISLR, gbm, class)
 data(Caravan)
 ```
 
@@ -76,6 +76,36 @@ conf.mat.log
 # Fraction of people predicted to purchase who made one
 conf.mat.log[2,2]/sum(conf.mat.log[2,])
 
+# KNN
+split = 800
+errors <- rep(NA, 20)
+x <- train.set[1:split, ] %>% select(-Purchase)
+x.test <- train.set[(split + 1):nrow(train.set), ] %>% select(-Purchase)
+
+# tuning k
+for(i in 1:20){
+  model.knn <- knn(x, 
+                   x.test, 
+                   cl = train.set[1:split, ]$Purchase,
+                   k = i)
+  errors[i] = sum(model.knn != train.set[(split+1):nrow(train.set), ]$Purchase)/
+              nrow(train.set[(split+1):nrow(train.set), ]) 
+}
+
+
+x <- train.set %>% select(-Purchase)
+x.test <- test.set %>% select(-Purchase)
+preds.knn <- knn(x, 
+                 x.test,
+                 cl = train.set$Purchase,
+                 k = which.min(errors),
+                 prob = TRUE)
+#preds.knn <- (attr(preds.knn, "prob") > 0.2)
+conf.mat.knn <- table(preds.knn, test.set$Purchase)
+conf.mat.knn
+
+# Fraction of people predicted to purchase who made one
+conf.mat.knn[2,2]/sum(conf.mat.knn[2,])
 ```
 
 
