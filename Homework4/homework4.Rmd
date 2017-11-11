@@ -3,31 +3,84 @@ title: "Homework 4"
 author: "name1 and name2 and name3"
 date: '2017-11-15'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse, ISLR, gbm)
+data(Caravan)
 ```
+
 
 
 ## Question 1 (Chapter 8, #11, 9 marks)
 
+This question uses the Caravan data set.
 
 (a) (1 mark)
 (Note: You should set your random seed, for reproducibility.)
 
+Create a training set consisting of the ﬁrst 1,000 observations, and a test set consisting of the remaining observations. 
+
+```{r}
+# Set seed for reproducibility
+set.seed(1)
+
+# Train set is first 1000
+train.set = Caravan[1:1000, ]
+
+# Test set is the rest
+test.set = Caravan[1001:nrow(Caravan), ]
+```
+
 (b) (3 marks)
 
+Fit a boosting model to the training set with Purchase as the response and the other variables as predictors. Use 1,000 trees, and a shrinkage value of 0.01. Which predictors appear to be the most important?
+
+```{r}
+model.boost <- gbm(I(Purchase == "Yes") ~ ., data = train.set, 
+                   n.trees = 1000, 
+                   distribution = "bernoulli", 
+                   shrinkage = 0.01)
+summary(model.boost)
+```
 
 (c) (5 marks)
+
+Use the boosting model to predict the response on the test data. Predict that a person will make a purchase if the estimated probability of purchase is greater than 20%. Form a confusion matrix. What fraction of the people predicted to make a purchase do in fact make one? How does this compare with the results obtained from applying KNN or logistic regression to this data set?
+
+```{r}
+preds.boost <- predict(model.boost, newdata = test.set, n.trees=1000, type="response") 
+
+preds.boost <- (preds.boost > 0.2) 
+
+table(preds.boost, train.set$Purchase)
+
+```
+
+
 
 
 ## Question 2 (Ch9, #7, 11 marks)
 
+In this problem, you will use support vector approaches in order to predict whether a given car gets high or low gas mileage based on the Auto data set.
+
 (a) (1 mark)
 
-(b) (3 marks)
+Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median. 
 
-(c) (5 marks)
+(b) (3 mark)
 
-(d) (2 marks)
+Fit a support vector classiﬁer to the data with various values of cost, in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. 
+ 
+(c) (5 marks) 
+
+Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with diﬀerent values of gamma and degree and cost. Comment on your results. 
+
+(d) (2 marks) 
+
+Make some plots to back up your assertions in (b) and (c).
+Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. Whenp>2, you can use theplot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
+"plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1∼x4)"" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
