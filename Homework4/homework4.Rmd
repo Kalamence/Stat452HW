@@ -100,7 +100,8 @@ preds.knn <- knn(x,
                  cl = train.set$Purchase,
                  k = which.min(errors),
                  prob = TRUE)
-#preds.knn <- (attr(preds.knn, "prob") > 0.2)
+# prob reports probability of FALSE
+preds.knn <- (attr(preds.knn, "prob") < 0.8)
 conf.mat.knn <- table(preds.knn, test.set$Purchase)
 conf.mat.knn
 
