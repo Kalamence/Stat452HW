@@ -9,8 +9,9 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(tidyverse, ISLR, gbm, class)
+pacman::p_load(tidyverse, ISLR, gbm, class, e1071)
 data(Caravan)
+data(Auto)
 ```
 
 
@@ -118,18 +119,67 @@ In this problem, you will use support vector approaches in order to predict whet
 
 (a) (1 mark)
 
-Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median. 
+Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median.
+
+```{r}
+median <- median(Auto$mpg)
+Auto <- Auto %>% mutate(above_med = mpg > median,
+                        above_med = above_med %>% as.numeric())
+```
 
 (b) (3 mark)
 
 Fit a support vector classiﬁer to the data with various values of cost, in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. 
  
+```{r}
+tune.auto.linear <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernel = "linear", 
+                         ranges = list(cost = c(10^{-3:3})))
+summary(tune.auto.linear)
+tune.auto.linear
+
+auto.linear <- svm(above_med ~. - mpg, data = Auto, kernel = "linear", cost = 1)
+```
+ 
+ 
 (c) (5 marks) 
 
 Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with diﬀerent values of gamma and degree and cost. Comment on your results. 
 
+```{r}
+tune.auto.rad <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernel = "radial", 
+                         ranges = list(cost = c(10^{-3:3}),
+                                       gamma = c(.5, 1:4)
+                                       )
+                      )
+summary(tune.auto.rad)
+tune.auto.rad
+
+auto.rad <- svm(above_med ~. - mpg, data = Auto, kernel = "radial", cost = 1, gamma = 0.5)
+
+tune.auto.poly <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernel = "polynomial", 
+                         ranges = list(cost = c(10^{-3:3}),
+                                       gamma = c(.5, 1:4)
+                                       )
+                       )
+summary(tune.auto.poly)
+
+tune.auto.rad
+
+auto.rad <- svm(above_med ~. - mpg, data = Auto, kernel = "radial", cost = 1, gamma = 0.5)
+
+```
+
 (d) (2 marks) 
 
 Make some plots to back up your assertions in (b) and (c).
-Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. Whenp>2, you can use theplot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
-"plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1∼x4)"" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
+Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. Whenp>2, you can use the plot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
+"plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1~x4)"" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
+
+```{r}
+plot(auto.linear, Auto, cylinders ~ origin )
+
+plot(auto.rad, Auto, cylinders ~ origin )
+
+plot(auto.poly, Auto, cylinders ~ origin )
+```
+
