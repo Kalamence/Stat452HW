@@ -152,11 +152,7 @@ p <- ggplot(data=meow, aes(cost, gamma)) + geom_tile(aes(fill = error),
     colour = "black") + scale_fill_gradient(low = "white", high = "red")
 p
 
-<<<<<<< HEAD
-####################
-=======
-##################
->>>>>>> 93b76931c5de1154e38a55b6f2ac31c1c2385637
+###################
 
 merp=tune_auto_rad$performances
 
