@@ -137,7 +137,7 @@ tune.auto.linear <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernal = 
 summary(tune.auto.linear)
 tune.auto.linear
 
-auto.linear <- svm(above_med ~. - mpg, data = Auto, kernal = "linear", cost = 1)
+auto.linear <- svm(above_med ~. - mpg, data = Auto, kernal = "linear", cost = 10)
 ```
  
  
@@ -154,7 +154,7 @@ tune.auto.rad <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernal = "ra
 summary(tune.auto.rad)
 tune.auto.rad
 
-auto.rad <- svm(above_med ~. - mpg, data = Auto, kernal = "radial", cost = 1, gamma = 0.5)
+auto.rad <- svm(above_med ~. - mpg, data = Auto, kernal = "radial", cost = 1, gamma = 1)
 
 tune.auto.poly <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernal = "polynomial", 
                          ranges = list(cost = c(10^{-3:3}),
@@ -164,7 +164,7 @@ tune.auto.poly <- tune(svm, above_med ~ . - mpg - name, data = Auto, kernal = "p
 summary(tune.auto.poly)
 tune.auto.rad
 
-auto.poly <- svm(above_med ~. - mpg - name, data = Auto, kernal = "polynomial", cost = 1, gamma = 0.5)
+auto.poly <- svm(above_med ~. - mpg - name, data = Auto, kernal = "polynomial", cost = 1, gamma = 1)
 
 ```
 
@@ -172,10 +172,10 @@ auto.poly <- svm(above_med ~. - mpg - name, data = Auto, kernal = "polynomial", 
 
 Make some plots to back up your assertions in (b) and (c).
 Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. Whenp>2, you can use the plot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
-"plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1~x4)"" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
+"plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1~x4)" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
 
 ```{r}
-plot(auto.linear, Auto, cylinders ~ origin)
+plot(auto.linear, Auto, cylinders~origin)
 
 plot(auto.rad, Auto, cylinders ~ origin)
 
