@@ -133,12 +133,13 @@ Auto <- Auto %>% mutate(above_med = mpg > median,
 Fit a support vector classiﬁer to the data with various values of cost, in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. 
  
 ```{r}
+set.seed(1)
 tune.auto.linear <- tune(svm, above_med ~ ., data = Auto, kernel = "linear", ranges = list(cost = c(10^{-3:3})))
 
 summary(tune.auto.linear)
 tune.auto.linear
 
-auto.linear <- svm(above_med ~., data = Auto, kernel = "linear", cost = 10)
+auto.linear <- svm(above_med ~., data = Auto, type = "C-classification", kernel = "linear", cost = 100)
 ```
  
  
@@ -147,6 +148,7 @@ auto.linear <- svm(above_med ~., data = Auto, kernel = "linear", cost = 10)
 Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with diﬀerent values of gamma and degree and cost. Comment on your results. 
 
 ```{r}
+set.seed(1)
 tune.auto.rad <- tune(svm, above_med ~ ., data = Auto, kernel = "radial", 
                          ranges = list(cost = c(10^{-3:3}),
                                        gamma = c(.5, 1:4)
@@ -176,13 +178,12 @@ Hint: In the lab, we used the plot() function for svm objects only in cases with
 "plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1~x4)" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
 
 ```{r}
-plot(auto.linear, data = Auto, cylinders~weight)
+plot(auto.linear, data = Auto, acceleration~horsepower)
 plot(auto.rad, Auto, acceleration ~ horsepower)
 
 plot(auto.poly, Auto, cylinders ~ origin)
 plot(auto.linear)
-plot(auto.linear, Auto, horsepower ~ cylinders,
-     slice = list(Acceleration = 6))
+
 library(e1071)
 plot(auto.linear, Auto[, -mpg], horsepower ~ cylinders)
 ```
