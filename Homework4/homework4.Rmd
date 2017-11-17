@@ -1,6 +1,6 @@
 ---
 title: "Homework 4"
-author: "name1 and name2 and name3"
+author: "Matthew Reyers, Dani Chu, Ryan Sheehan"
 date: '2017-11-15'
 output: html_document
 editor_options: 
@@ -183,5 +183,20 @@ plot(auto.rad, Auto, acceleration ~ horsepower)
 
 plot(auto.poly, Auto, cylinders ~ origin)
 plot(auto.linear)
+
+?plot.svm
+colnames(Auto)
+
+plot(auto.linear, data = Auto, weight~year)
+
+for(i in 1:(ncol(Auto)-2)){
+  j=i+1
+  while(j<=(ncol(Auto)-1)){
+    plot(auto.linear, data=Auto, as.formula(paste( colnames(Auto)[i], "~", as.name(colnames(Auto)[j]))))
+    j=j+1
+  }
+}
+
+
 ```
 
