@@ -172,7 +172,7 @@ auto.poly <- svm(above_med ~., data = Auto, kernel = "polynomial", cost = 1, gam
 (d) (2 marks) 
 
 Make some plots to back up your assertions in (b) and (c).
-Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. Whenp>2, you can use the plot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
+Hint: In the lab, we used the plot() function for svm objects only in cases with p =2. When p>2, you can use the plot() function to create plots displaying pairs of variables at a time. Essentially, instead of typing
 "plot(svmfit , dat)" where svmfit contains your ﬁtted model and dat is a data frame containing your data, you can type "plot(svmfit , dat , x1~x4)" in order to plot just the ﬁrst and fourth variables. However, you must replace x1 and x4 with the correct variable names. To ﬁnd out more, type ?plot.svm.
 
 ```{r}
@@ -180,10 +180,5 @@ plot(auto.linear, data = Auto, cylinders~weight)
 plot(auto.rad, Auto, acceleration ~ horsepower)
 
 plot(auto.poly, Auto, cylinders ~ origin)
-plot(auto.linear)
-plot(auto.linear, Auto, horsepower ~ cylinders,
-     slice = list(Acceleration = 6))
-library(e1071)
-plot(auto.linear, Auto[, -mpg], horsepower ~ cylinders)
 ```
 
