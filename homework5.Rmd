@@ -1,0 +1,109 @@
+---
+title: "Homework 4"
+author: "name1 and name2 and name3"
+date: '2017-12-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 10, #8, 4 marks)
+
+a) (1 mark)
+```{r}
+library(ISLR)
+data("USArrests")
+dim(USArrests)
+
+PCAScaled = prcomp(USArrests)
+screeplot(PCA)
+# Results don't match findings in textbook on page 397/440, check
+# Matches Brad McNeney's findings
+prop = (PCA$sdev)^2 / sum((PCA$sdev)^2) * 100
+prop
+```
+
+b) (3 marks)
+```{r}
+# Calculate PVE using the formula with loadings
+PCAScaled$rotation[,1]
+PCAScaled$x
+# Each column of the rotation is phi1, phi2, etc
+comp = matrix(nrow = dim(USArrests)[1], ncol = 4)
+data = scale(USArrests)
+term = as.vector(0)
+
+res = sum(PCAScaled$x^2)
+for(j in 1:dim(data)[1]){
+  for(i in 1:4){
+    #print(j )
+    #print(i)
+    #print(PCA$rotation[,i])
+    #print(USArrests[j,])
+    comp[j, i] = sum(PCAScaled$rotation[,i]*PCAScaled$x[j,])^2
+    
+  }
+}
+comp
+PCA$x[, 1]
+firstComp = sum(comp[, 1]) / res
+secondComp= sum(comp[, 2]) / res
+thirdComp = sum(comp[, 3]) / res
+fourthComp= sum(comp[, 4]) / res
+```
+
+## Question 2 (Chapter 10, #9, 7 marks)
+
+a) (1 mark)
+```{r}
+data(USArrests)
+hc.complete = hclust(dist(USArrests), method = "complete")
+plot(hc.complete) # Dendogram
+
+```
+
+b) (2 marks)
+```{r}
+groups = cutree(hc.complete, 3) # Specify number of clusters I am interested in, identifies where the observations go
+```
+
+c) (2 marks)
+```{r}
+USArrestsScale = scale(USArrests)
+hc.complete.scale = hclust(dist(USArrestsScale), method = "complete")
+```
+
+d) (2 marks)
+```{r}
+plot(hc.complete.scale)
+groupsScale = cutree(hc.complete.scale, 3)
+identical = sum(groups == groupsScale)
+identical
+```
+The results of the two trees differ in almost 50% of assignments (28 of the states received the same cluster assignment). Part of this may be due to the labelling of groups so we will check for similarities between each group.
+
+```{r}
+holder = matrix(nrow = 3, ncol = 3)
+for(i in 1:3){
+  for(j in 1:3){
+   holder[i,j] = length(setdiff(names(groupsScale[groupsScale == i]),
+                 names(groups[groups == j])))
+  }
+}
+holder
+```
+Using the results of the Holder matrix above, we see that the groups were likely adequately labelled as 1 is most similar with 1, 2 is most similar with 2 (as 1 is already paired), and 3 is most similar with 3. We can now proceed with the notion that 28 of the states are clustered in the same group with or without scaling and that 22 of them are not. This represents a 44% different classification rate. These different classifications are occurring because of the scaling. Reasons behind this are the fact that Euclidean distance is NOT scale invariant. Consider the Euclidean distance between the two following measurements, done in different scales.
+Distance between 6ft2in and 6ft = 2in = 4 Euclidean distance
+Distance between 1879.6mm and 1828.8mm = 50.8 = 2580.64 Euclidean distance
+Both sets of measurements consider the same two people. The first uses the American standard of feet and inches while the latter uses the metric system in millimetres. Note that although the people are equally different in height, the Euclidean distance of the second example is significantly larger. By changing the units, we have artificially changed the Euclidean distance. However, by using a scaling process, we can remove the influence of these unit differences. (x - mean(x)) / sd(x) allows for identical distances to be calculated across units. For this reason we should be using scaling processes before doing Hierarchical clustering.
+
+a) (1 mark)
+
+b) (2 marks)
+
+c) (2 marks)
+
+d) (2 marks)
