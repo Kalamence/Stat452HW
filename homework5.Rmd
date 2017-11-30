@@ -18,7 +18,7 @@ library(ISLR)
 data("USArrests")
 dim(USArrests)
 
-PCAScaled = prcomp(USArrests)
+PCA = prcomp(USArrests, scale = TRUE)
 screeplot(PCA)
 # Results don't match findings in textbook on page 397/440, check
 # Matches Brad McNeney's findings
@@ -29,30 +29,29 @@ prop
 b) (3 marks)
 ```{r}
 # Calculate PVE using the formula with loadings
-PCAScaled$rotation[,1]
-PCAScaled$x
 # Each column of the rotation is phi1, phi2, etc
 comp = matrix(nrow = dim(USArrests)[1], ncol = 4)
 data = scale(USArrests)
-term = as.vector(0)
 
-res = sum(PCAScaled$x^2)
+res = sum(data^2)
 for(j in 1:dim(data)[1]){
   for(i in 1:4){
     #print(j )
     #print(i)
     #print(PCA$rotation[,i])
     #print(USArrests[j,])
-    comp[j, i] = sum(PCAScaled$rotation[,i]*PCAScaled$x[j,])^2
+    comp[j, i] = sum(PCA$rotation[,i]*data[j,])^2
     
   }
 }
-comp
+#comp
 PCA$x[, 1]
-firstComp = sum(comp[, 1]) / res
-secondComp= sum(comp[, 2]) / res
-thirdComp = sum(comp[, 3]) / res
-fourthComp= sum(comp[, 4]) / res
+firstComp = sum(comp[, 1]) / res *100
+secondComp= sum(comp[, 2]) / res *100
+thirdComp = sum(comp[, 3]) / res *100
+fourthComp= sum(comp[, 4]) / res *100
+
+print(c(firstComp, secondComp, thirdComp, fourthComp))
 ```
 
 ## Question 2 (Chapter 10, #9, 7 marks)
@@ -68,6 +67,10 @@ plot(hc.complete) # Dendogram
 b) (2 marks)
 ```{r}
 groups = cutree(hc.complete, 3) # Specify number of clusters I am interested in, identifies where the observations go
+
+groups[groups == 1]
+groups[groups == 2]
+groups[groups == 3]
 ```
 
 c) (2 marks)
@@ -99,11 +102,3 @@ Using the results of the Holder matrix above, we see that the groups were likely
 Distance between 6ft2in and 6ft = 2in = 4 Euclidean distance
 Distance between 1879.6mm and 1828.8mm = 50.8 = 2580.64 Euclidean distance
 Both sets of measurements consider the same two people. The first uses the American standard of feet and inches while the latter uses the metric system in millimetres. Note that although the people are equally different in height, the Euclidean distance of the second example is significantly larger. By changing the units, we have artificially changed the Euclidean distance. However, by using a scaling process, we can remove the influence of these unit differences. (x - mean(x)) / sd(x) allows for identical distances to be calculated across units. For this reason we should be using scaling processes before doing Hierarchical clustering.
-
-a) (1 mark)
-
-b) (2 marks)
-
-c) (2 marks)
-
-d) (2 marks)
